@@ -1,130 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TDA Report Analyzer</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1f1f1f);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #00ffbb;
-      text-shadow: 0 0 10px #00ffbb77;
-    }
-    textarea {
-      width: 100%;
-      max-width: 600px;
-      height: 180px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
-      color: white;
-      font-size: 1rem;
-      padding: 15px;
-      resize: none;
-      outline: none;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px 25px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #00ffbb;
-      color: #000;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 15px #00ffbb88;
-    }
-    button:hover {
-      background-color: #00cc99;
-      box-shadow: 0 0 25px #00ffbbcc;
-    }
-    .result-box {
-      margin-top: 25px;
-      padding: 20px;
-      max-width: 600px;
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      line-height: 1.6;
-      white-space: pre-wrap;
-      font-size: 1rem;
-      color: #e0e0e0;
-    }
-    .loading {
-      animation: pulse 1.2s infinite;
-    }
-    @keyframes pulse {
-      0% { opacity: 0.4; }
-      50% { opacity: 1; }
-      100% { opacity: 0.4; }
-    }
-  </style>
-</head>
-<body>
-  <h1>📊 TDA Report Analyzer</h1>
-  <textarea id="reportInput" placeholder="Paste your TDA report here..."></textarea>
-  <button id="analyzeBtn">Analyze Report</button>
-  <div id="result" class="result-box"></div>
-
-  <script>
-    const apiUrl = "/api/analyze"; // ✅ Vercel proxy endpoint
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const reportInput = document.getElementById("reportInput");
-    const resultBox = document.getElementById("result");
-
-    analyzeBtn.addEventListener("click", async () => {
-      const report = reportInput.value.trim();
-      if (!report) {
-        resultBox.innerHTML = "⚠️ Please paste a TDA report first.";
-        return;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini AI Text Analyzer</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: linear-gradient(135deg, #121212, #1e1e1e);
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
       }
 
-      resultBox.innerHTML = "⏳ Analyzing report, please wait...";
-      resultBox.classList.add("loading");
+      .container {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        border-radius: 16px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 600px;
+      }
 
-      try {
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: `Analyze this TDA report and summarize insights:\n${report}` }]
-            }]
-          }),
-        });
+      h1 {
+        text-align: center;
+        color: #00c2ff;
+      }
 
-        const data = await response.json();
-        resultBox.classList.remove("loading");
+      textarea {
+        width: 100%;
+        height: 120px;
+        margin: 10px 0;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        resize: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 16px;
+      }
 
-        if (response.ok && data.candidates?.length > 0) {
-          const text = data.candidates[0].content.parts[0].text;
-          resultBox.innerHTML = `<b>✅ Analysis Result:</b><br><br>${text}`;
-        } else {
-          resultBox.innerHTML = `❌ Error: ${data.error?.message || "Unknown error"}`;
+      button {
+        background: #00c2ff;
+        color: #fff;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        background: #00a0d1;
+      }
+
+      .output {
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 15px;
+        border-radius: 10px;
+        white-space: pre-wrap;
+        font-family: monospace;
+        color: #ddd;
+      }
+
+      .loading {
+        text-align: center;
+        color: #888;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>💬 Gemini Text Analyzer</h1>
+      <textarea
+        id="userInput"
+        placeholder="Enter text or question..."
+      ></textarea>
+      <button id="analyzeBtn">Analyze</button>
+      <div id="loading" class="loading" style="display:none;">Thinking...</div>
+      <div id="output" class="output"></div>
+    </div>
+
+    <script>
+      const button = document.getElementById("analyzeBtn");
+      const input = document.getElementById("userInput");
+      const output = document.getElementById("output");
+      const loading = document.getElementById("loading");
+
+      async function callGeminiWithBackoff(payload, retries = 3, delay = 1000) {
+        try {
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (err) {
+          if (retries > 0) {
+            await new Promise((res) => setTimeout(res, delay));
+            return callGeminiWithBackoff(payload, retries - 1, delay * 2);
+          } else {
+            throw err;
+          }
         }
-      } catch (err) {
-        console.error(err);
-        resultBox.classList.remove("loading");
-        resultBox.innerHTML = "❌ Failed to analyze. Please try again later.";
       }
-    });
-  </script>
-</body>
+
+      button.addEventListener("click", async () => {
+        const text = input.value.trim();
+        if (!text) return alert("Please enter something to analyze.");
+
+        output.textContent = "";
+        loading.style.display = "block";
+
+        const payload = {
+          contents: [{ parts: [{ text }] }],
+        };
+
+        try {
+          const data = await callGeminiWithBackoff(payload);
+          const answer =
+            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "No response received.";
+          output.textContent = answer;
+        } catch (error) {
+          output.textContent = "Error: " + error.message;
+        } finally {
+          loading.style.display = "none";
+        }
+      });
+    </script>
+  </body>
 </html>
