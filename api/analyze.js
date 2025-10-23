@@ -13,9 +13,11 @@ export default async function handler(request, response) {
     });
   }
   
-  // FIX: Updated to a stable model name that works with v1beta
-  const modelName = "gemini-pro-vision"; 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+  // FIX 1: Use the latest and most capable model name
+  const modelName = "gemini-1.5-flash-latest"; 
+  
+  // FIX 2: Use the stable 'v1' API endpoint instead of 'v1beta'
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`;
 
   try {
     const geminiResponse = await fetch(apiUrl, {
@@ -30,7 +32,9 @@ export default async function handler(request, response) {
 
     if (!geminiResponse.ok) {
       console.error('Gemini API Error:', responseData);
-      return response.status(geminiResponse.status).json({ error: responseData.error });
+      // Pass the actual error from Google back to the browser for better debugging
+      const errorMessage = responseData.error?.message || 'Unknown API error occurred.';
+      return response.status(geminiResponse.status).json({ error: { message: errorMessage } });
     }
 
     return response.status(200).json(responseData);
