@@ -20,7 +20,7 @@ export default async function handler(request, response) {
         const modelName = "gemini-2.5-flash-preview-09-2025"; // သို့မဟုတ် သင်သုံးလိုသော model
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-        const systemPrompt = "သင်သည် အလွန်ကျွမ်းကျင်သော market structure trader တစ်ဦးဖြစ်ပြီး Top-Down Analysis (TDA) ကို အထူးပြုပါသည်။ သင်၏ခွဲခြမ်းစိတ်ဖြာမှုသည် Price Action Method အပေါ် အခြေခံသည်။ မြန်မာဘာသာဖြင့်သာ တိကျရှင်းလင်းစွာ တုံ့ပြန်ပါ။";
+        const systemPrompt = "သင်သည် အလွန်ကျွမ်းကျင်သော market structure trader တစ်ဦးဖြစ်ပြီး Top-Down Analysis (TDA) ကို အထူးပြုပါသည်။ သင်၏ခွဲခြမ်းစိတ်ဖြာမှုသည် Price Action Method (market structure patterns) အပေါ် အခြေခံသည်။ မြန်မာဘာသာဖြင့်သာ တိကျရှင်းလင်းစွာ တုံ့ပြန်ပါ။";
         
         let userParts = [];
         userParts.push({ 
