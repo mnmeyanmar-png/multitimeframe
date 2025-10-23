@@ -1,393 +1,130 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Timeframe ဈေးကွက်ဖွဲ့စည်းပုံ ခွဲခြမ်းစိတ်ဖြာရေး App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* gray-900 */
-            color: #F9FAFB; /* gray-50 */
-        }
-        /* Custom file input */
-        .file-input-label {
-            display: inline-block;
-            padding: 0.75rem 1rem;
-            background-color: #374151; /* gray-700 */
-            color: white;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            text-align: center;
-            font-weight: 500;
-        }
-        .file-input-label:hover {
-            background-color: #4B5563; /* gray-600 */
-        }
-        .file-input-label svg {
-            display: inline-block;
-            margin-right: 0.5rem;
-            vertical-align: middle;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .preview-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            background-color: #374151; /* gray-700 */
-            border-radius: 0.5rem;
-            overflow: hidden;
-            display: none; /* Hidden by default */
-        }
-        .preview-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        .remove-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            border-radius: 9999px;
-            width: 1.75rem;
-            height: 1.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            border: 1px solid white;
-        }
-        .remove-btn:hover {
-            background-color: rgba(239, 68, 68, 0.8); /* red-500 */
-        }
-        /* Loading Spinner */
-        #loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-left-color: #22D3EE; /* cyan-400 */
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* Markdown-like output */
-        #analysis-output h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #22D3EE; /* cyan-400 */
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-            border-bottom: 1px solid #374151; /* gray-700 */
-            padding-bottom: 0.5rem;
-        }
-        #analysis-output h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #67E8F9; /* cyan-300 */
-            margin-top: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-        #analysis-output p {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #D1D5DB; /* gray-300 */
-            margin-bottom: 1rem;
-        }
-        #analysis-output ul {
-            list-style-type: disc;
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-            color: #D1D5DB; /* gray-300 */
-        }
-        #analysis-output strong {
-            color: #F9FAFB; /* gray-50 */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TDA Report Analyzer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1f1f1f);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00ffbb;
+      text-shadow: 0 0 10px #00ffbb77;
+    }
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 180px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      padding: 15px;
+      resize: none;
+      outline: none;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #00ffbb;
+      color: #000;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px #00ffbb88;
+    }
+    button:hover {
+      background-color: #00cc99;
+      box-shadow: 0 0 25px #00ffbbcc;
+    }
+    .result-box {
+      margin-top: 25px;
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-size: 1rem;
+      color: #e0e0e0;
+    }
+    .loading {
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+  </style>
 </head>
-<body class="p-4 sm:p-6 md:p-8">
+<body>
+  <h1>📊 TDA Report Analyzer</h1>
+  <textarea id="reportInput" placeholder="Paste your TDA report here..."></textarea>
+  <button id="analyzeBtn">Analyze Report</button>
+  <div id="result" class="result-box"></div>
 
-    <div class="max-w-7xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">Multi-Timeframe TDA App</h1>
-            <p class="text-lg text-gray-400 mt-2">
-                သင့်ဆရာသင်ပေးသလို ဈေးကွက်ဖွဲ့စည်းပုံကို AI ဖြင့် ခွဲခြမ်းစိတ်ဖြာပါ။
-            </p>
-        </header>
+  <script>
+    const apiUrl = "/api/analyze"; // ✅ Vercel proxy endpoint
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const reportInput = document.getElementById("reportInput");
+    const resultBox = document.getElementById("result");
 
-        <main>
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
-                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-200">Timeframe Chart များကို Upload လုပ်ပါ</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                    <div class="text-center">
-                        <label for="weekly-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            Weekly
-                        </label>
-                        <input type="file" id="weekly-input" class="timeframe-input" data-target="weekly-preview" accept="image/*">
-                        <div id="weekly-preview" class="preview-container mt-2">
-                            <img src="" alt="Weekly Chart Preview">
-                            <div class="remove-btn" data-target="weekly-input">&times;</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <label for="daily-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            Daily
-                        </label>
-                        <input type="file" id="daily-input" class="timeframe-input" data-target="daily-preview" accept="image/*">
-                        <div id="daily-preview" class="preview-container mt-2">
-                            <img src="" alt="Daily Chart Preview">
-                            <div class="remove-btn" data-target="daily-input">&times;</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <label for="h4-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            H4
-                        </label>
-                        <input type="file" id="h4-input" class="timeframe-input" data-target="h4-preview" accept="image/*">
-                        <div id="h4-preview" class="preview-container mt-2">
-                            <img src="" alt="H4 Chart Preview">
-                            <div class="remove-btn" data-target="h4-input">&times;</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <label for="h1-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            H1
-                        </label>
-                        <input type="file" id="h1-input" class="timeframe-input" data-target="h1-preview" accept="image/*">
-                        <div id="h1-preview" class="preview-container mt-2">
-                            <img src="" alt="H1 Chart Preview">
-                            <div class="remove-btn" data-target="h1-input">&times;</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <label for="m15-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            M15
-                        </label>
-                        <input type="file" id="m15-input" class="timeframe-input" data-target="m15-preview" accept="image/*">
-                        <div id="m15-preview" class="preview-container mt-2">
-                            <img src="" alt="M15 Chart Preview">
-                            <div class="remove-btn" data-target="m15-input">&times;</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <label for="m5-input" class="file-input-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9H6a.5.5 0 0 1 0-1h1.5V6.5a.5.5 0 0 1 .5-.5z"/><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
-                            M5
-                        </label>
-                        <input type="file" id="m5-input" class="timeframe-input" data-target="m5-preview" accept="image/*">
-                        <div id="m5-preview" class="preview-container mt-2">
-                            <img src="" alt="M5 Chart Preview">
-                            <div class="remove-btn" data-target="m5-input">&times;</div>
-                        </div>
-                    </div>
-                </div>
+    analyzeBtn.addEventListener("click", async () => {
+      const report = reportInput.value.trim();
+      if (!report) {
+        resultBox.innerHTML = "⚠️ Please paste a TDA report first.";
+        return;
+      }
 
-                <button id="analyze-btn" class="mt-8 w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    ခွဲခြမ်းစိတ်ဖြာပါ (Analyze)
-                </button>
-            </div>
+      resultBox.innerHTML = "⏳ Analyzing report, please wait...";
+      resultBox.classList.add("loading");
 
-            <div id="output-section" class="bg-gray-800 p-6 rounded-xl shadow-lg min-h-[200px]">
-                <div id="loading" class="text-center py-12 hidden">
-                    <div id="loading-spinner" class="mx-auto"></div>
-                    <p class="mt-4 text-lg text-gray-400">AI ဖြင့် ခွဲခြမ်းစိတ်ဖြာနေပါသည်... (စက္ကန့် ၃၀ ခန့် ကြာနိုင်ပါသည်)</p>
-                </div>
-
-                <div id="analysis-output" class="prose prose-invert max-w-none">
-                    <p id="placeholder-text" class="text-gray-500 text-center text-lg">
-                        ခွဲခြမ်းစိတ်ဖြာမှုရလဒ်များကို ဤနေရာတွင် ဖော်ပြပေးပါမည်။ <br>
-                        ကျေးဇူးပြု၍ အနည်းဆုံး chart ပုံ တစ်ပုံကို upload လုပ်ပြီး 'Analyze' ကိုနှိပ်ပါ။
-                    </p>
-                </div>
-                
-                <div id="error-message" class="hidden text-center p-4 bg-red-800 border border-red-600 rounded-lg">
-                    <h3 class="font-bold text-red-200">Error!</h3>
-                    <p id="error-text" class="text-red-300"></p>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // --- DOM Elements ---
-        const analyzeBtn = document.getElementById('analyze-btn');
-        const loadingIndicator = document.getElementById('loading');
-        const analysisOutput = document.getElementById('analysis-output');
-        const placeholderText = document.getElementById('placeholder-text');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
-        const inputs = document.querySelectorAll('.timeframe-input');
-        const removeBtns = document.querySelectorAll('.remove-btn');
-
-        // --- State ---
-        let uploadedImages = {
-            weekly: null,
-            daily: null,
-            h4: null,
-            h1: null,
-            m15: null,
-            m5: null
-        };
-
-        // --- API Configuration ---
-        // This now points to our Vercel serverless function
-        const apiUrl = "/api/gemini"; 
-
-        // --- Event Listeners ---
-        inputs.forEach(input => {
-            input.addEventListener('change', handleFileSelect);
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: `Analyze this TDA report and summarize insights:\n${report}` }]
+            }]
+          }),
         });
 
-        removeBtns.forEach(btn => {
-            btn.addEventListener('click', handleRemoveImage);
-        });
+        const data = await response.json();
+        resultBox.classList.remove("loading");
 
-        analyzeBtn.addEventListener('click', handleAnalysis);
-
-        // --- File Handling Functions ---
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const timeframe = event.target.id.split('-')[0];
-            const previewId = event.target.dataset.target;
-            const previewContainer = document.getElementById(previewId);
-            const previewImg = previewContainer.querySelector('img');
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                const base64Data = e.target.result;
-                uploadedImages[timeframe] = base64Data;
-                previewImg.src = base64Data;
-                previewContainer.style.display = 'block';
-                checkAnalyzeButtonState();
-            };
-            reader.readAsDataURL(file);
+        if (response.ok && data.candidates?.length > 0) {
+          const text = data.candidates[0].content.parts[0].text;
+          resultBox.innerHTML = `<b>✅ Analysis Result:</b><br><br>${text}`;
+        } else {
+          resultBox.innerHTML = `❌ Error: ${data.error?.message || "Unknown error"}`;
         }
-
-        function handleRemoveImage(event) {
-            const inputId = event.target.dataset.target;
-            const input = document.getElementById(inputId);
-            const timeframe = inputId.split('-')[0];
-            const previewContainer = document.getElementById(input.dataset.target);
-
-            input.value = null;
-            uploadedImages[timeframe] = null;
-            previewContainer.style.display = 'none';
-            previewContainer.querySelector('img').src = '';
-            
-            checkAnalyzeButtonState();
-        }
-
-        function checkAnalyzeButtonState() {
-            const hasImages = Object.values(uploadedImages).some(img => img !== null);
-            analyzeBtn.disabled = !hasImages;
-        }
-
-        // --- Analysis Function ---
-        async function handleAnalysis() {
-            loadingIndicator.classList.remove('hidden');
-            analysisOutput.innerHTML = '';
-            placeholderText.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = 'ခွဲခြမ်းစိတ်ဖြာနေသည်...';
-
-            try {
-                const systemPrompt = "သင်သည် အလွန်ကျွမ်းကျင်သော market structure trader တစ်ဦးဖြစ်ပြီး Top-Down Analysis (TDA) ကို အထူးပြုပါသည်။ သင်၏ခွဲခြမ်းစိတ်ဖြာမှုသည် SMC (Smart Money Concepts) အပေါ် အခြေခံသည်။ မြန်မာဘာသာဖြင့်သာ တိကျရှင်းလင်းစွာ တုံ့ပြန်ပါ။";
-                
-                let userParts = [];
-                
-                userParts.push({ 
-                    text: "အောက်တွင် ပေးထားသော chart ပုံများကို timeframe အလိုက် ခွဲခြမ်းစိတ်ဖြာပါ။ Timeframe တစ်ခုချင်းစီအတွက် (Weekly, Daily, H4, H1, M15, M5) လက်ရှိ market structure (Uptrend/Downtrend)၊ ဈေးနှုန်း၏ လက်ရှိလှုပ်ရှားမှု (Impulsive or Corrective) နှင့် 'လက်ရှိဈေးက ဘယ်နေရာကိုရောက်နေလဲ' (ဥပမာ: key support, pullback to resistance, breaking structure) ကို သေချာဖော်ပြပါ။ \n\nခွဲခြမ်းစိတ်ဖြာမှုများကို 'Weekly Analysis', 'Daily Analysis' စသည်ဖြင့် ခေါင်းစဉ်ခွဲ၍ ရှင်းလင်းစွာရေးသားပါ။ \n\nနောက်ဆုံးတွင်၊ 'ခြုံငုံသုံးသပ်ချက် (Overall Synthesis)' အနေဖြင့် Timeframe အားလုံးကို ပေါင်းစပ်သုံးသပ်ပြီး၊ ဈေးကွက်၏ အဓိက ဦးတည်ရာ (Overall Bias) နှင့် ဖြစ်နိုင်ခြေရှိသော ကုန်သွယ်မှု အစီအစဉ်များ (Swing Trader နှင့် Scalper အတွက်) ကို အကြံပြုပေးပါ။" 
-                });
-
-                let imageCount = 0;
-                for (const [key, base64Data] of Object.entries(uploadedImages)) {
-                    if (base64Data) {
-                        imageCount++;
-                        userParts.push({ text: `\n\n--- ${key.toUpperCase()} CHART ---` });
-                        userParts.push({
-                            inlineData: {
-                                mimeType: base64Data.split(';')[0].split(':')[1],
-                                data: base64Data.split(',')[1]
-                            }
-                        });
-                    }
-                }
-
-                if (imageCount === 0) {
-                    throw new Error("ကျေးဇူးပြု၍ အနည်းဆုံး chart ပုံ တစ်ပုံကို upload လုပ်ပါ။");
-                }
-
-                const payload = {
-                    contents: [{ role: "user", parts: userParts }],
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
-                    generationConfig: {
-                        temperature: 0.5,
-                    }
-                };
-                
-                // Call our own backend function
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorResult = await response.json();
-                    throw new Error(errorResult.error || `Server error: ${response.status}`);
-                }
-
-                const analysisText = await response.text();
-                analysisOutput.innerHTML = simpleMarkdownToHtml(analysisText);
-                
-            } catch (err) {
-                console.error('Analysis Error:', err);
-                errorText.textContent = `An error occurred: ${err.message}.`;
-                errorMessage.classList.remove('hidden');
-            } finally {
-                loadingIndicator.classList.add('hidden');
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'ခွဲခြမ်းစိတ်ဖြာပါ (Analyze)';
-                checkAnalyzeButtonState();
-            }
-        }
-
-        // Utility function for simple markdown conversion
-        function simpleMarkdownToHtml(text) {
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>')
-                .replace(/<\/ul>\s*<ul>/gim, '')
-                .replace(/\n/g, '<br>');
-        }
-
-    </script>
+      } catch (err) {
+        console.error(err);
+        resultBox.classList.remove("loading");
+        resultBox.innerHTML = "❌ Failed to analyze. Please try again later.";
+      }
+    });
+  </script>
 </body>
 </html>
