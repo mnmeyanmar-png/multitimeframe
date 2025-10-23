@@ -1,25 +1,28 @@
 // api/gemini.js
 
-export default async function handler(request, response) {
-    // 1. POST method ဟုတ်မဟုတ် စစ်ဆေးပါ။
+// Node.js 18+ မှာ built-in ပါတဲ့ TransformStream ကိုသုံးဖို့လိုပါမယ်။
+// Vercel က ဒါကို support လုပ်ပါတယ်။
+export const config = {
+  runtime: 'edge', // Use the Vercel Edge Runtime for streaming
+};
+
+export default async function handler(request) {
     if (request.method !== 'POST') {
-        return response.status(405).json({ error: 'Method Not Allowed' });
+        return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 2. Vercel Environment Variable ကနေ API Key ကို ရယူပါ။
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-        return response.status(500).json({ error: 'API key is not configured on the server.' });
+        return new Response(JSON.stringify({ error: 'API key is not configured on the server.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
-    const modelName = "gemini-1.5-flash-latest"; // Or your preferred model
-    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const modelName = "gemini-1.5-flash-latest";
+    // We need to add `stream=true` to the model action
+    const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:streamGenerateContent?key=${apiKey}`;
 
     try {
-        // 3. Frontend က ပို့လိုက်တဲ့ payload ကို လက်ခံပါ။
-        const payload = request.body;
+        const payload = await request.json();
 
-        // 4. Google Gemini API ကို တဆင့်ခေါ်ဆိုပါ။
         const geminiResponse = await fetch(googleApiUrl, {
             method: 'POST',
             headers: {
@@ -28,28 +31,48 @@ export default async function handler(request, response) {
             body: JSON.stringify(payload)
         });
 
-        const geminiResult = await geminiResponse.json();
-        
-        // 5. Google API က error ပြန်ပေးခဲ့ရင် အဲ့ဒီ error ကို frontend ကို ပြန်ပို့ပါ။
         if (!geminiResponse.ok) {
-            console.error('Google API Error:', geminiResult);
-            const errorMessage = geminiResult.error?.message || 'Unknown error from Google API.';
-            return response.status(geminiResponse.status).json({ error: errorMessage });
+            const errorResult = await geminiResponse.json();
+            console.error('Google API Error:', errorResult);
+            const errorMessage = errorResult.error?.message || 'Unknown error from Google API.';
+            return new Response(JSON.stringify({ error: errorMessage }), { status: geminiResponse.status, headers: { 'Content-Type': 'application/json' } });
         }
 
-        // 6. အောင်မြင်ခဲ့ရင် ရလဒ် text ကို ထုတ်ယူပြီး frontend ကို ပြန်ပို့ပေးပါ။
-        const analysisText = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text;
-        
-        if (analysisText) {
-            response.status(200).send(analysisText);
-        } else {
-            // No content was returned, maybe due to safety settings
-            console.warn('Google API returned no content:', geminiResult);
-            return response.status(500).json({ error: 'API returned no valid content. It might have been blocked for safety reasons.' });
-        }
+        // Create a new readable stream to pipe the response
+        const readableStream = new ReadableStream({
+            async start(controller) {
+                const reader = geminiResponse.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        break;
+                    }
+                    const chunk = decoder.decode(value);
+                    // The response from Google is chunked JSON, we need the text part.
+                    try {
+                        const lines = chunk.split('\n');
+                        for (const line of lines) {
+                            if (line.trim().startsWith('"text":')) {
+                                const textPart = line.replace('"text": "', '').replace('",', '').trim();
+                                controller.enqueue(textPart);
+                            }
+                        }
+                    } catch (e) {
+                         // Ignore parsing errors for incomplete chunks
+                    }
+                }
+                controller.close();
+            },
+        });
+
+        return new Response(readableStream, {
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        });
 
     } catch (error) {
         console.error('Internal Server Error:', error);
-        response.status(500).json({ error: 'An unexpected error occurred on the server.' });
+        return new Response(JSON.stringify({ error: 'An unexpected error occurred on the server.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 }
