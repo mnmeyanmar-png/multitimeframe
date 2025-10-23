@@ -24,7 +24,7 @@ export default async function handler(request, response) {
         
         let userParts = [];
         userParts.push({ 
-            text: "အောက်တွင် ပေးထားသော chart ပုံများကို timeframe အလိုက် ခွဲခြမ်းစိတ်ဖြာပါ။ Timeframe တစ်ခုချင်းစီအတွက် (Weekly, Daily, H4, H1, M15, M5) လက်ရှိ market structure (Uptrend/Downtrend)၊ ဈေးနှုန်း၏ လက်ရှိလှုပ်ရှားမှု (Impulsive or Corrective) နှင့် 'လက်ရှိဈေးက ဘယ်နေရာကိုရောက်နေလဲ' (ဥပမာ: key support, pullback to resistance, breaking structure) ကို သေချာဖော်ပြပါ။ \n\nခွဲခြမ်းစိတ်ဖြာမှုများကို 'Weekly Analysis', 'Daily Analysis' စသည်ဖြင့် ခေါင်းစဉ်ခွဲ၍ ရှင်းလင်းစွာရေးသားပါ။ \n\nနောက်ဆုံးတွင်၊ 'ခြုံငုံသုံးသပ်ချက် (Overall Synthesis)' အနေဖြင့် Timeframe အားလုံးကို ပေါင်းစပ်သုံးသပ်ပြီး၊ ဈေးကွက်၏ အဓိက ဦးတည်ရာ (Overall Bias) နှင့် ဖြစ်နိုင်ခြေရှိသော ကုန်သွယ်မှု အစီအစဉ်များ (Swing Trader နှင့် Scalper အတွက်) ကို အကြံပြုပေးပါ။" 
+            text: "အောက်တွင် ပေးထားသော chart ပုံများကို timeframe အလိုက် ခွဲခြမ်းစိတ်ဖြာပါ။ Timeframe တစ်ခုချင်းစီအတွက် (Weekly, Daily, H4, H1, M15, M5) လက်ရှိ market structure (Uptrend/Downtrend)၊ ဈေးနှုန်း၏ လက်ရှိလှုပ်ရှားမှု (Impulsive or Corrective) နှင့် 'လက်ရှိဈေးက ဘယ်နေရာကိုရောက်နေလဲ' (ဥပမာ: key support, pullback to resistance, breaking structure, LL to LH, HH to HL) ကို သေချာဖော်ပြပါ။ \n\nခွဲခြမ်းစိတ်ဖြာမှုများကို 'Weekly Analysis', 'Daily Analysis' စသည်ဖြင့် ခေါင်းစဉ်ခွဲ၍ ရှင်းလင်းစွာရေးသားပါ။ \n\nနောက်ဆုံးတွင်၊ 'ခြုံငုံသုံးသပ်ချက် (Overall Synthesis)' အနေဖြင့် Timeframe အားလုံးကို ပေါင်းစပ်သုံးသပ်ပြီး၊ ဈေးကွက်၏ အဓိက ဦးတည်ရာ (Overall Bias) နှင့် ဖြစ်နိုင်ခြေရှိသော ကုန်သွယ်မှု အစီအစဉ်များ (Swing Trader နှင့် Scalper အတွက်) ကို အကြံပြုပေးပါ။" 
         });
 
         // Client ပို့လိုက်တဲ့ ပုံတွေကို Payload ထဲ ထည့်ပါ
