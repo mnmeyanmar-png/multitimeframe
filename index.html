@@ -1,144 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gemini AI Text Analyzer</title>
-    <style>
-      body {
-        font-family: system-ui, sans-serif;
-        background: linear-gradient(135deg, #121212, #1e1e1e);
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
+<script>
+        // --- DOM Elements ---
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const loadingIndicator = document.getElementById('loading');
+        const analysisOutput = document.getElementById('analysis-output');
+        const placeholderText = document.getElementById('placeholder-text');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const inputs = document.querySelectorAll('.timeframe-input');
+        const removeBtns = document.querySelectorAll('.remove-btn');
 
-      .container {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 30px;
-        border-radius: 16px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        width: 90%;
-        max-width: 600px;
-      }
-
-      h1 {
-        text-align: center;
-        color: #00c2ff;
-      }
-
-      textarea {
-        width: 100%;
-        height: 120px;
-        margin: 10px 0;
-        padding: 12px;
-        border-radius: 8px;
-        border: none;
-        outline: none;
-        resize: none;
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        font-size: 16px;
-      }
-
-      button {
-        background: #00c2ff;
-        color: #fff;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-        transition: all 0.2s ease;
-      }
-
-      button:hover {
-        background: #00a0d1;
-      }
-
-      .output {
-        margin-top: 20px;
-        background: rgba(255, 255, 255, 0.08);
-        padding: 15px;
-        border-radius: 10px;
-        white-space: pre-wrap;
-        font-family: monospace;
-        color: #ddd;
-      }
-
-      .loading {
-        text-align: center;
-        color: #888;
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>💬 Gemini Text Analyzer</h1>
-      <textarea
-        id="userInput"
-        placeholder="Enter text or question..."
-      ></textarea>
-      <button id="analyzeBtn">Analyze</button>
-      <div id="loading" class="loading" style="display:none;">Thinking...</div>
-      <div id="output" class="output"></div>
-    </div>
-
-    <script>
-      const button = document.getElementById("analyzeBtn");
-      const input = document.getElementById("userInput");
-      const output = document.getElementById("output");
-      const loading = document.getElementById("loading");
-
-      async function callGeminiWithBackoff(payload, retries = 3, delay = 1000) {
-        try {
-          const response = await fetch("/api/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          return await response.json();
-        } catch (err) {
-          if (retries > 0) {
-            await new Promise((res) => setTimeout(res, delay));
-            return callGeminiWithBackoff(payload, retries - 1, delay * 2);
-          } else {
-            throw err;
-          }
-        }
-      }
-
-      button.addEventListener("click", async () => {
-        const text = input.value.trim();
-        if (!text) return alert("Please enter something to analyze.");
-
-        output.textContent = "";
-        loading.style.display = "block";
-
-        const payload = {
-          contents: [{ parts: [{ text }] }],
+        // --- State ---
+        let uploadedImages = {
+            weekly: null,
+            daily: null,
+            h4: null,
+            h1: null,
+            m15: null,
+            m5: null
         };
 
-        try {
-          const data = await callGeminiWithBackoff(payload);
-          const answer =
-            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "No response received.";
-          output.textContent = answer;
-        } catch (error) {
-          output.textContent = "Error: " + error.message;
-        } finally {
-          loading.style.display = "none";
+        // --- Event Listeners ---
+        inputs.forEach(input => {
+            input.addEventListener('change', handleFileSelect);
+        });
+
+        removeBtns.forEach(btn => {
+            btn.addEventListener('click', handleRemoveImage);
+        });
+
+        analyzeBtn.addEventListener('click', handleAnalysis);
+
+        // --- File Handling Functions ---
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const timeframe = event.target.id.split('-')[0]; // e.g., "weekly"
+            const previewId = event.target.dataset.target;
+            const previewContainer = document.getElementById(previewId);
+            const previewImg = previewContainer.querySelector('img');
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const base64Data = e.target.result;
+                uploadedImages[timeframe] = base64Data;
+                previewImg.src = base64Data;
+                previewContainer.style.display = 'block';
+                checkAnalyzeButtonState();
+            };
+            reader.readAsDataURL(file);
         }
-      });
+
+        function handleRemoveImage(event) {
+            const inputId = event.target.dataset.target;
+            const input = document.getElementById(inputId);
+            const timeframe = inputId.split('-')[0];
+            const previewContainer = document.getElementById(input.dataset.target);
+
+            // Reset state
+            input.value = null; // Clear file input
+            uploadedImages[timeframe] = null;
+            previewContainer.style.display = 'none';
+            previewContainer.querySelector('img').src = '';
+            
+            checkAnalyzeButtonState();
+        }
+
+        function checkAnalyzeButtonState() {
+            const hasImages = Object.values(uploadedImages).some(img => img !== null);
+            analyzeBtn.disabled = !hasImages;
+        }
+
+        // --- (UPDATED) Analysis Function ---
+        async function handleAnalysis() {
+            // 1. Setup UI for loading
+            loadingIndicator.classList.remove('hidden');
+            analysisOutput.innerHTML = ''; // Clear previous results
+            placeholderText.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'ခွဲခြမ်းစိတ်ဖြာနေသည်...';
+
+            try {
+                // 2. Check if there are images (client-side check)
+                const hasImages = Object.values(uploadedImages).some(img => img !== null);
+                if (!hasImages) {
+                    throw new Error("ကျေးဇူးပြု၍ အနည်းဆုံး chart ပုံ တစ်ပုံကို upload လုပ်ပါ။");
+                }
+
+                // 3. Call OUR OWN Vercel API endpoint
+                const response = await fetch('/api/analyze-tda', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uploadedImages: uploadedImages })
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    throw new Error(errorBody.error || `Server error ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // 4. Display results
+                analysisOutput.innerHTML = simpleMarkdownToHtml(data.result);
+                
+            } catch (err) {
+                console.error('Analysis Error:', err);
+                errorText.textContent = `An error occurred: ${err.message}`;
+                errorMessage.classList.remove('hidden');
+            } finally {
+                // 5. Reset UI
+                loadingIndicator.classList.add('hidden');
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'ခွဲခြမ်းစိတ်ဖြာပါ (Analyze)';
+                checkAnalyzeButtonState(); // Re-enable if images are still present
+            }
+        }
+        
+        // --- (REMOVED) `callGeminiWithBackoff` function is no longer needed here ---
+
+        // --- Utility Function (Keep this) ---
+        function simpleMarkdownToHtml(text) {
+             if (!text) return ''; // Add a check for undefined text
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')     // Italic
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>') // H2
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>') // H3
+                .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>') // Basic lists (simple)
+                .replace(/<\/ul>\s*<ul>/gim, '') // Merge adjacent list items
+                .replace(/\n/g, '<br>'); // Newlines
+        }
+
     </script>
-  </body>
+</body>
 </html>
