@@ -17,7 +17,7 @@ export default async function handler(request, response) {
   }
   
   // Use a stable, recent model
-  const modelName = "gemini-1.5-flash-latest";
+  const modelName = "gemini-1.5-flash-preview-0514";
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
   try {
