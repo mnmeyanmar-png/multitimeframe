@@ -13,10 +13,10 @@ export default async function handler(request, response) {
     });
   }
   
-  // FIX 1: Use the latest and most capable model name
-  const modelName = "gemini-1.5-flash-latest"; 
+  // LAST ATTEMPT: Using a very stable, globally available vision model
+  const modelName = "gemini-1.0-pro-vision-latest"; 
   
-  // FIX 2: Use the stable 'v1' API endpoint instead of 'v1beta'
+  // Using the stable 'v1' API endpoint
   const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`;
 
   try {
@@ -32,7 +32,6 @@ export default async function handler(request, response) {
 
     if (!geminiResponse.ok) {
       console.error('Gemini API Error:', responseData);
-      // Pass the actual error from Google back to the browser for better debugging
       const errorMessage = responseData.error?.message || 'Unknown API error occurred.';
       return response.status(geminiResponse.status).json({ error: { message: errorMessage } });
     }
